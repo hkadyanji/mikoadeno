@@ -1,7 +1,7 @@
 import { Context, helpers } from 'https://deno.land/x/oak/mod.ts';
 import { Router } from 'https://deno.land/x/oak/mod.ts';
-import * as mikoa from 'npm:mikoa';
-import similarity from 'npm:string-similarity';
+import * as mikoa from 'https://esm.sh/mikoa';
+import similarity from 'https://esm.sh/string-similarity';
 
 import { handleSuccess } from '../helpers/request.ts';
 
