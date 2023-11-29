@@ -17,6 +17,47 @@ const getIndex = (region: string, district: string) => {
   return districts[districtData.bestMatchIndex].id;
 };
 
+const handlePosition = async (ctx: Context) => {
+  const params = helpers.getQuery(ctx, { mergeParams: true });
+  const result = {};
+
+  const regions = mikoa.region.all();
+
+  if (params.region) {
+    const regionData = similarity.findBestMatch(params.region.toLowerCase(), regions.map((item) => item.name.toLowerCase()));
+    const regionIdx = regionData.bestMatchIndex;
+    result['region'] = {
+      index: regionIdx,
+      ...regions[regionIdx],
+    };
+  }
+
+  if (params.district) {
+    const districts = mikoa.district.region(result['region'].id);
+
+    const districtData = similarity.findBestMatch(params.district.toLowerCase(), districts.map((item) => item.name.toLowerCase()));
+    const districtIdx = districtData.bestMatchIndex;
+
+    result['district'] = {
+      index: districtIdx,
+      ...districts[districtIdx],
+    };
+  }
+
+  if (params.ward) {
+    const wards = mikoa.ward.district(result['district'].id);
+    const wardData = similarity.findBestMatch(params.ward.toLowerCase(), wards.map((item) => item.name.toLowerCase()));
+    const wardIdx = wardData.bestMatchIndex;
+
+    result['ward'] = {
+      index: wardIdx,
+      ...wards[wardIdx],
+    }
+  }
+
+  handleSuccess(ctx, result);
+}
+
 const handleRegion = async (ctx: Context) => {
   const regions = mikoa.region.all();
   handleSuccess(ctx, regions);
@@ -39,5 +80,6 @@ router
   .get('/', handleRegion)
   .get('districts', handleDistrict)
   .get('wards', handleWard)
+  .get('indexes', handlePosition)
 
 export default router;
